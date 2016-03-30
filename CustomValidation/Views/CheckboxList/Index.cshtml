@@ -1,0 +1,34 @@
+﻿@using MvcCheckBoxList.Model
+@model  CustomValidation.Models.CitiesViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+
+@using (Html.BeginForm("Index", "CheckboxList", FormMethod.Post, new { name = "TestVal" }))
+{
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<h2>Index</h2>
+    <div id="ChkList">
+@Html.CheckBoxListFor(model => model.PostedCities.CityIDs, 
+                      model => model.AvailableCities, 
+                      entity => entity.Id, 
+                      entity => entity.Name, 
+                      model => model.SelectedCities) 
+    </div>
+@Html.ValidationMessageFor(model => model.PostedCities.CityIDs, "", new { @class = "text-danger" })   
+
+    <input class="green" type="submit" value="POST Data" />     
+                      
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+<script>
+    $(function () {
+        $('#ChkList input[type=checkbox]').each(function () {
+            $(this).attr('data-val-required', 'Please check at least one box');
+            $(this).attr('data-val', 'true');
+        });
+    });
+    </script>
+    }

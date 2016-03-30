@@ -1,0 +1,194 @@
+﻿@model  AuthTest.Models.SampleViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+<h2>Index</h2>
+<style>
+    #Hobbies-error
+    {
+        display: none;
+        color:#b94a48;
+        font-weight:bold;
+    }
+</style>
+
+@using (Html.BeginForm("Index", "TestVal", FormMethod.Post, new { name = "TestVal" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>DateValTest</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Products, htmlAttributes: new { @class = "control-label col-md-2", style = "padding-top:0px;" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.SelectedProductId, new SelectList(Model.Products, "ID", "Name"), "-- Select Product--")
+                @Html.ValidationMessageFor(model => model.SelectedProductId, "", new { @class = "text-danger" })
+
+                @for (int i = 0; i < Model.Products.Count(); i++)
+                {
+                    <div>
+                        @Html.HiddenFor(model => Model.Products[i].Name)
+                        @Html.HiddenFor(model => Model.Products[i].ID)
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <b>Gender</b><br />
+                <label>
+                    <span>Male</span> @Html.RadioButtonFor(model => model.Gender, "Male", new { style = "width:20px;" })
+                    <span>Female</span>@Html.RadioButtonFor(model => model.Gender, "Female", new { style = "width:20px;" })
+                </label>
+                <label>
+                </label>
+                @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10 input-validation-error">
+                <b>Hobbies</b><br />
+                @for (int x = 0; x < Model.Hobbies.Count(); x++)
+                {
+                    @Html.CheckBoxFor(p => p.Hobbies[x].IsSelected, new { @class = "hobbycls",  id = "Hobbies" }) @: &nbsp; 
+                    @Html.LabelFor(p => p.Hobbies[x].IsSelected, Model.Hobbies[x].Name) @: &nbsp;
+                    @Html.HiddenFor(p => p.Hobbies[x].Name) 
+
+                }
+
+            </div>
+
+        </div>
+
+            <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <b>Is Adult</b><br />
+                <label>
+                    <span>Yes</span> @Html.RadioButtonFor(model => model.IsAdult, "true", new { style = "width:20px;" })
+                    <span>No</span>@Html.RadioButtonFor(model => model.IsAdult, "false", new { style = "width:20px;" })
+                </label>
+            </div>
+            <div class="col-md-offset-2 col-md-10">
+                <label>
+                    Enter Age @Html.TextBoxFor(model => model.Age)
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <label>
+                    @Html.HiddenFor(model => model.ErrorMsg) 
+                    @Html.ValidationMessageFor(model => model.ErrorMsg, "", new { @class = "text-danger" })
+
+                    <span id="Hobbies-error" class="field-validation-error">
+                       
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Submit" class="btn btn-default" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                @if (ViewBag.IsPostBack != null && ViewBag.IsPostBack)
+                {
+                    <text>
+                    <b>Your Selected Product ID :</b> @ViewBag.ProductID<br />
+                    <b>Your Selected Product Name :</b> @ViewBag.ProductName<br />
+                    <b>Gender :</b> @ViewBag.Gender<br />
+                    <b>Hobbies :</b> @(ViewBag.Hobbies=="" ? "N/A" : ViewBag.Hobbies) <br />
+                    <b>Is Adult :</b> @ViewBag.IsAdult <br />
+                    <b>Age :</b> @ViewBag.Age <br />
+                    </text>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+        
+        var declarationsError = $('#Hobbies-error');
+        $('form').submit(function () {
+            if ($("#SelectedProductId option:selected").text() != 'iPod') {
+                if ($(".hobbycls:checkbox:checked").length <= 0) {
+                    declarationsError.empty();
+                    declarationsError.append("<span>Select Any Hobbie's checkbox</span>");
+                    declarationsError.show();
+                    return false;
+                } else {
+                    declarationsError.empty();
+                    declarationsError.hide();
+                }
+            }
+
+            if ($("#IsAdult").prop("checked")) {
+                if ($.trim($("#Age").val()) == '') {
+                    declarationsError.empty();
+                    declarationsError.append("<span>Age is compulsory for adult</span>");
+                    declarationsError.show();
+                    return false;
+                }
+                else {
+                    if (parseInt($.trim($("#Age").val())) <= 0) {
+                        declarationsError.empty();
+                        declarationsError.append("<span>Age is compulsory for adult</span>");
+                        declarationsError.show();
+                        return false;
+                    }
+                }
+            }
+
+            declarationsError.hide();
+            return true;
+        });
+
+        $('.hobbycls').change(function () {
+            if ($(this).is(':checked')) {
+                declarationsError.empty();
+                declarationsError.hide(); // hide error message
+            }
+        });
+
+        $('#Age').on('input', function (e) {
+            if ($.trim($("#Age").val()) == '') {
+                declarationsError.empty();
+                declarationsError.append("<span>Age is compulsory for adult</span>");
+                declarationsError.show();
+                return false;
+            }
+            else {
+                if (parseInt($.trim($("#Age").val())) <= 0) {
+                    declarationsError.empty();
+                    declarationsError.append("<span>Age is compulsory for adult</span>");
+                    declarationsError.show();
+                    return false;
+                }
+            }
+            declarationsError.hide();
+            return true;
+        });
+        
+        
+
+
+    </script>
+}
